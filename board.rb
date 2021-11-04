@@ -3,7 +3,7 @@
 class Board
     def initialize
         @board = generate_board
-        @game_board = Array.new(9){["[]", "[]", "[]", "[]", "[]", "[]", "[]", "[]", "[]"]}
+        @game_board = Array.new(9){["[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]"]}
     end
 
 
@@ -32,7 +32,7 @@ class Board
 
     def render_board
         puts "\n\n"
-        puts "      0  1  2  3  4  5  6  7  8 \n\n\n"
+        puts "      0   1   2   3   4   5   6   7   8 \n\n\n"
         @game_board.each_with_index do |row, i|
             print "#{i}    "
             row.each_with_index do |ele, j|
@@ -53,6 +53,8 @@ class Board
 
 
     def flag_position(position)
+        x, y = position
+        @game_board[x][y] = "|F|"
     end
 
 
