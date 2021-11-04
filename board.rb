@@ -27,4 +27,19 @@ class Board
 
         add_bombs_to_board(board)
     end
+
+
+
+    def render_board(game_board)
+        puts "\n\n"
+        puts "      0  1  2  3  4  5  6  7  8 \n\n\n"
+        game_board.each_with_index do |row, i|
+            print "#{i}    "
+            row.each_with_index do |ele, j|
+                print "#{ele} "
+            end
+            puts "\n\n"
+        end
+        puts "\n\n"
+    end
 end
