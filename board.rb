@@ -30,10 +30,10 @@ class Board
 
 
 
-    def render_board(game_board)
+    def render_board
         puts "\n\n"
         puts "      0  1  2  3  4  5  6  7  8 \n\n\n"
-        game_board.each_with_index do |row, i|
+        @game_board.each_with_index do |row, i|
             print "#{i}    "
             row.each_with_index do |ele, j|
                 print "#{ele} "
@@ -42,4 +42,36 @@ class Board
         end
         puts "\n\n"
     end
+
+
+
+    def is_bomb?(position)
+        x, y = position
+        return @board[x][y] == "B"
+    end
+
+
+
+    def flag_position(position)
+    end
+
+
+
+    def update_user_choice(position, value)
+        if value.downcase == "f"
+            flag_position(position)
+        # else
+        #     if is_bomb?(position)
+        #         false
+        #     else
+
+        #     end
+        end
+    end
+
+
+
+    def get_user_choice
+    end
+
 end
