@@ -10,19 +10,27 @@ class Board
 
 
 
-    def adjacent_cells(board, position)
-        x, y = position
-        adjacents_index = [[x-1, y-1], [x-1, y], [x-1, y+1], [x, y-1], [x, y+1], [x+1, y-1], [x+1, y], [x+1, y+1]]
+    def adjacents_values(board, adjacents_index)
         adjacents = []
 
         adjacents_index.each do |index|
             i, j = index
-            if i < board.length && j < board.length
-                adjacents << board[i][j] if i >= 0 && j >= 0
-            end
-        end     
+            adjacents << board[i][j]
+        end 
 
-        adjacents
+        adjacents    
+    end
+
+
+
+    def adjacent_positions(board, position)
+        x, y = position
+        adjacents_index = [[x-1, y-1], [x-1, y], [x-1, y+1], [x, y-1], [x, y+1], [x+1, y-1], [x+1, y], [x+1, y+1]]
+
+        adjacents_index.select do |index|
+            i, j = index
+            index if i < board.length && i >= 0  && j < board.length && j >= 0
+        end         
     end
 
 
@@ -31,8 +39,9 @@ class Board
         (0...board.length).each do |x|
             (0...board.length).each do |y|
                 if !is_bomb?(board, [x, y])
-                    adjacents = adjacent_cells(board, [x, y])
-                    board[x][y] = adjacents.count("B") if adjacents.count("B") > 0
+                    neighbours = adjacent_positions(board, [x, y])
+                    neighbours = adjacents_values(board, neighbours)
+                    board[x][y] = neighbours.count("B") if neighbours.count("B") > 0
                 end
             end
         end
@@ -56,7 +65,7 @@ class Board
     def generate_board 
         board = Array.new(9){[]}
         (0...9).each do |i|
-            9.times { board[i] << ""}
+            9.times { board[i] << "_"}
         end
 
         add_bombs_to_board(board)
@@ -93,6 +102,32 @@ class Board
 
 
 
+    def adjacents_have_bomb?(neighbours_positions)
+        neighbours_positions.any? do |index|
+            x, y = index
+            is_bomb?(@board, index)
+        end
+    end
+
+
+    
+    def clear_neighbours(position, all_neighbours = [])
+        neighbours_positions = adjacent_positions(board, position)
+        return if adjacents_have_bomb?(neighbours_positions)
+
+        all_neighbours << position
+        x, y = position        
+        @game_board[x][y] = " #{@board[x][y]} " 
+
+        neighbours_positions.each do |index|
+            x, y = index        
+            @game_board[x][y] = " #{@board[x][y]} "  
+            clear_neighbours(index, all_neighbours) if !all_neighbours.include?(index)
+        end
+    end
+
+
+
     def update_user_choice(position, value)
         if value.downcase == "f"
             flag_position(position)
@@ -101,7 +136,9 @@ class Board
             if is_bomb?(@board, position)
                 false
             else
-                count_of_adjacent_bombs(position)
+                clear_neighbours(position)
+                x, y = position
+                @game_board[x][y] = " #{@board[x][y]} "
                 true
             end
         end
