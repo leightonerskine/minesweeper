@@ -41,7 +41,7 @@ class Board
                 if !is_bomb?(board, [x, y])
                     neighbours = adjacent_positions(board, [x, y])
                     neighbours = adjacents_values(board, neighbours)
-                    board[x][y] = neighbours.count("B") if neighbours.count("B") > 0
+                    board[x][y] = " #{neighbours.count(" B ")} " if neighbours.count(" B ") > 0
                 end
             end
         end
@@ -51,10 +51,10 @@ class Board
 
     
     def add_bombs_to_board(board)
-        while board.flatten.count("B") < 10
+        while board.flatten.count(" B ") < 10
             radom_bomb_x = rand(board.length - 1)
             radom_bomb_y = rand(board.length - 1)            
-            board[radom_bomb_x][radom_bomb_y] = "B"
+            board[radom_bomb_x][radom_bomb_y] = " B "
         end
 
         add_fringe_to_board(board)
@@ -65,7 +65,7 @@ class Board
     def generate_board 
         board = Array.new(9){[]}
         (0...9).each do |i|
-            9.times { board[i] << "_"}
+            9.times { board[i] << " _ "}
         end
 
         add_bombs_to_board(board)
@@ -90,7 +90,7 @@ class Board
 
     def is_bomb?(board, position)
         x, y = position
-        return board[x][y] == "B"
+        return board[x][y] == " B "
     end
 
 
@@ -117,11 +117,11 @@ class Board
 
         all_neighbours << position
         x, y = position        
-        @game_board[x][y] = " #{@board[x][y]} " 
+        @game_board[x][y] = "#{@board[x][y]}" 
 
         neighbours_positions.each do |index|
             x, y = index        
-            @game_board[x][y] = " #{@board[x][y]} "  
+            @game_board[x][y] = "#{@board[x][y]}"  
             clear_neighbours(index, all_neighbours) if !all_neighbours.include?(index)
         end
     end
@@ -138,7 +138,7 @@ class Board
             else
                 clear_neighbours(position)
                 x, y = position
-                @game_board[x][y] = " #{@board[x][y]} "
+                @game_board[x][y] = "#{@board[x][y]}"
                 true
             end
         end
@@ -146,7 +146,47 @@ class Board
 
 
 
+    def valid_position?(position)
+        if position.length == 2 && position[0] < @board.length && position[1] < @board.length 
+            return position[0] >  0 && position[1] >  0
+        end
+        false
+    end
+
+
+
+    def valid_choice?(choice)
+        return choice == "f" || choice == ""
+    end
+
+
+
     def get_user_choice
+        position = ""
+        choice = ""
+
+        while !valid_position?(position) && !valid_choice?(choice)
+            puts "_________________________________________________________________"
+            puts "Enter a valid position, in format: row, colunm (eg. 3,5)"
+            position = gets.chomp.split(",").map(&:to_i)
+            puts "\n\n"
+
+            puts "_________________________________________________________________"
+            puts "Enter 'f' to flag or unflag, or hit enter to uncover the position"
+            choice = gets.chomp
+            puts "\n\n"
+        end
+        [position, choice]
+    end
+
+
+
+    def game_solved?
+    end
+
+
+
+    def game_won_or_lost
     end
 
 end
