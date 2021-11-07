@@ -97,7 +97,12 @@ class Board
 
     def flag_position(position)
         x, y = position
-        @game_board[x][y] = "|F|"
+
+        if @game_board[x][y] == "|F|"
+            @game_board[x][y] = "[ ]"
+        else       
+            @game_board[x][y] = "|F|"
+        end
     end
 
 
@@ -110,35 +115,88 @@ class Board
     end
 
 
+
+    def adjacent_bombs_are_flagged?(neighbours_positions)
+        neighbours_positions.none? do |position|
+            x, y = position 
+            @board[x][y] == " B " && @game_board[x][y] != "|F|"
+        end
+    end
+
+
+
+
+    def remove_flagged_neighbours(neighbours_positions)
+        neighbours_positions.each_with_index do |position, i|
+            x, y = position 
+            neighbours_positions.delete_at(i) if @game_board[x][y] == "|F|"
+        end
+    end
+
+
+
+
+    def have_unflagged_bombs_in_neighbours(neighbours_positions)
+        if adjacents_have_bomb?(neighbours_positions)
+            if adjacent_bombs_are_flagged?(neighbours_positions)
+                remove_flagged_neighbours(neighbours_positions)
+                false
+            else
+                true 
+            end
+        end
+    end
+
+
     
     def clear_neighbours(position, all_neighbours = [])
         neighbours_positions = adjacent_positions(board, position)
-        return if adjacents_have_bomb?(neighbours_positions)
+
+        return if have_unflagged_bombs_in_neighbours(neighbours_positions)
+        
 
         all_neighbours << position
         x, y = position        
-        @game_board[x][y] = "#{@board[x][y]}" 
+        @game_board[x][y] = "#{@board[x][y]}"  if @game_board[x][y] != "|F|"
 
         neighbours_positions.each do |index|
             x, y = index        
-            @game_board[x][y] = "#{@board[x][y]}"  
+            @game_board[x][y] = "#{@board[x][y]}"  if @game_board[x][y] != "|F|"
             clear_neighbours(index, all_neighbours) if !all_neighbours.include?(index)
+        end
+
+    end
+
+
+
+    def game_board_cleanup
+        (1...@game_board.length).each do |x| 
+            (1...@game_board.length).each do |y|
+                if @game_board[x][y] != "|F|" && @game_board[x][y] != "[ ]" && @game_board[x][y] != " _ "
+                    clear_neighbours([x, y])
+                end
+            end
         end
     end
 
 
 
     def update_user_choice(position, choice)
+        x, y = position
+
         if choice.downcase == "f"
-            flag_position(position)
+            flag_position(position) 
+            game_board_cleanup
             true
+
         else
-            if is_bomb?(@board, position)
+            if is_bomb?(@board, position)                
+                @game_board[x][y] = "#{@board[x][y]}"
                 false
             else
                 clear_neighbours(position)
-                x, y = position
                 @game_board[x][y] = "#{@board[x][y]}"
+                game_board_cleanup
                 true
             end
         end
@@ -183,15 +241,7 @@ class Board
 
 
     def game_solved?
-        (1...@game_board.length).each do |x|
-            (1...@game_board.length).each do |y|
-                if board[x][y] != (" B ")
-                    return false if @game_board[x][y] == "[ ]"
-                end
-            end
-        end
-        
-        return true
+        return @game_board.flatten.none? {|ele| ele == "[ ]"}
     end
 
 
