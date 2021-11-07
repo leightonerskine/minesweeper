@@ -128,8 +128,8 @@ class Board
 
 
 
-    def update_user_choice(position, value)
-        if value.downcase == "f"
+    def update_user_choice(position, choice)
+        if choice.downcase == "f"
             flag_position(position)
             true
         else
@@ -148,7 +148,7 @@ class Board
 
     def valid_position?(position)
         if position.length == 2 && position[0] < @board.length && position[1] < @board.length 
-            return position[0] >  0 && position[1] >  0
+            return position[0] >=  0 && position[1] >=  0
         end
         false
     end
@@ -165,7 +165,7 @@ class Board
         position = ""
         choice = ""
 
-        while !valid_position?(position) && !valid_choice?(choice)
+        while !valid_position?(position) || !valid_choice?(choice)
             puts "_________________________________________________________________"
             puts "Enter a valid position, in format: row, colunm (eg. 3,5)"
             position = gets.chomp.split(",").map(&:to_i)
@@ -176,17 +176,39 @@ class Board
             choice = gets.chomp
             puts "\n\n"
         end
-        [position, choice]
+        
+        return [position, choice]
     end
 
 
 
     def game_solved?
+        (1...@game_board.length).each do |x|
+            (1...@game_board.length).each do |y|
+                if board[x][y] != (" B ")
+                    return false if @game_board[x][y] == "[ ]"
+                end
+            end
+        end
+        
+        return true
     end
 
 
 
     def game_won_or_lost
+        if game_solved?
+            puts "--------------------------------"
+            puts "You won!! You past all the mines"
+            puts "--------------------------------"
+            puts "\n\n"
+
+        else
+            puts "----------------------------"
+            puts "You stept on a mine! BOOM!!"
+            puts "----------------------------"
+            puts "\n\n"
+        end
     end
 
 end
