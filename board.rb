@@ -107,6 +107,21 @@ class Board
 
 
 
+    def flagged?(position)
+        x, y = position
+
+        if @game_board[x][y] == "|F|"
+            puts "_______________________"
+            puts "Unflag position first!!"
+            puts "\n\n"
+            return true
+        end
+
+        false
+    end
+
+
+
     def adjacents_have_bomb?(neighbours_positions)
         neighbours_positions.any? do |index|
             x, y = index
@@ -190,10 +205,12 @@ class Board
             true
 
         else
+            return true if flagged?(position)
+
             if is_bomb?(@board, position)                
                 @game_board[x][y] = "#{@board[x][y]}"
                 false
-            else
+            else                
                 clear_neighbours(position)
                 @game_board[x][y] = "#{@board[x][y]}"
                 game_board_cleanup
@@ -241,7 +258,13 @@ class Board
 
 
     def game_solved?
-        return @game_board.flatten.none? {|ele| ele == "[ ]"}
+        (0...@game_board.length).each do |x|
+            (0...@game_board.length).each do |y|
+                return false if @game_board[x][y] == "[ ]" && @board[x][y] != " B "
+            end
+        end
+
+        true
     end
 
 
